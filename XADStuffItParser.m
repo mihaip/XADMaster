@@ -66,6 +66,7 @@
 
 #define SITFH_UNK           36 /* xadUINT16 unknown, always 0x0986? */
 #define SITFH_RSRCLONG      38 /* xadUINT32 unknown rsrc fork value */
+#define SITFH_FOLDERWIND    38 /* xadUINT16 For folders a QuickDraw Rect (signed 16 bit ints for top, left, bottom, right) */
 #define SITFH_DATALONG      42 /* xadUINT32 unknown data fork value */
 #define SITFH_DATACHAR      46 /* xadUINT8 unknown data (yes, data) fork value */
 #define SITFH_RSRCCHAR      47 /* xadUINT8 unknown rsrc fork value */
@@ -73,10 +74,11 @@
 #define SITFH_PREVOFFS      50 /* xadUINT32 offset of previous entry */
 #define SITFH_NEXTOFFS      54 /* xadUINT32 offset of next entry */
 #define SITFH_PARENTOFFS    58 /* xadUINT32 offset of parent entry */
-#define SITFH_CHILDOFFS     62 /* xadINT32 offset of first child entry, -1 for file entries */
+#define SITFH_CHILDOFFS     62 /* xadINT32 offset of first child entry, -1 for file entries. For files, QuickDraw Point (signed 16 bit ints for y and x) */
 
 #define SITFH_FTYPE         66 /* xadUINT32 file type */
 #define SITFH_CREATOR       70 /* xadUINT32 file creator */
+#define SITFH_FOLDERLOC     70 /* xadINT32 For folders a QuickDraw Point (signed 16 bit ints for y and x) */
 #define SITFH_FNDRFLAGS     74 /* xadUINT16 Finder flags */
 #define SITFH_CREATIONDATE  76 /* xadUINT32 creation date */
 #define SITFH_MODDATE       80 /* xadUINT32 modification date */
@@ -161,6 +163,12 @@
 					[NSDate XADDateWithTimeIntervalSince1904:CSUInt32BE(header+SITFH_MODDATE)],XADLastModificationDateKey,
 					[NSDate XADDateWithTimeIntervalSince1904:CSUInt32BE(header+SITFH_CREATIONDATE)],XADCreationDateKey,
 					[NSNumber numberWithInt:CSUInt16BE(header+SITFH_FNDRFLAGS)],XADFinderFlagsKey,
+                    [NSNumber numberWithInt:CSInt16BE(header+SITFH_FOLDERWIND)],XADFinderWindowTopKey,
+                    [NSNumber numberWithInt:CSInt16BE(header+SITFH_FOLDERWIND+2)],XADFinderWindowLeftKey,
+                    [NSNumber numberWithInt:CSInt16BE(header+SITFH_FOLDERWIND+4)],XADFinderWindowBottomKey,
+                    [NSNumber numberWithInt:CSInt16BE(header+SITFH_FOLDERWIND+6)],XADFinderWindowRightKey,
+                    [NSNumber numberWithInt:CSInt16BE(header+SITFH_FOLDERLOC)],XADFinderLocationYKey,
+                    [NSNumber numberWithInt:CSInt16BE(header+SITFH_FOLDERLOC+2)],XADFinderLocationXKey,
 					[NSNumber numberWithBool:YES],XADIsDirectoryKey,
 				nil];
 
@@ -195,6 +203,8 @@
 						[NSNumber numberWithUnsignedInt:CSUInt32BE(header+SITFH_FTYPE)],XADFileTypeKey,
 						[NSNumber numberWithUnsignedInt:CSUInt32BE(header+SITFH_CREATOR)],XADFileCreatorKey,
 						[NSNumber numberWithInt:CSUInt16BE(header+SITFH_FNDRFLAGS)],XADFinderFlagsKey,
+                        [NSNumber numberWithInt:CSInt16BE(header+SITFH_CHILDOFFS)],XADFinderLocationYKey,
+                        [NSNumber numberWithInt:CSInt16BE(header+SITFH_CHILDOFFS+2)],XADFinderLocationXKey,
 
 						[NSNumber numberWithBool:YES],XADIsResourceForkKey,
 						[NSNumber numberWithLongLong:start],XADDataOffsetKey,
@@ -235,6 +245,8 @@
 						[NSNumber numberWithUnsignedInt:CSUInt32BE(header+SITFH_FTYPE)],XADFileTypeKey,
 						[NSNumber numberWithUnsignedInt:CSUInt32BE(header+SITFH_CREATOR)],XADFileCreatorKey,
 						[NSNumber numberWithInt:CSUInt16BE(header+SITFH_FNDRFLAGS)],XADFinderFlagsKey,
+                        [NSNumber numberWithInt:CSInt16BE(header+SITFH_CHILDOFFS)],XADFinderLocationYKey,
+                        [NSNumber numberWithInt:CSInt16BE(header+SITFH_CHILDOFFS+2)],XADFinderLocationXKey,
 
 						[NSNumber numberWithLongLong:start+resourcecomplen],XADDataOffsetKey,
 						[NSNumber numberWithUnsignedInt:datacomplen],XADDataLengthKey,
